@@ -2,7 +2,7 @@
 
 An enterprise-style Azure analytics portfolio project demonstrating how fragmented customer, sales, payment, marketing, digital and service data can be integrated into a governed lakehouse for Customer 360, revenue intelligence, data quality monitoring and executive reporting.
 
-> **Portfolio note:** All data used in this project will be synthetic. The project is not affiliated with any real company, customer, cloud client or financial institution.
+> **Portfolio note:** All data used in this project is synthetic. The project is not affiliated with any real company, customer, cloud client or financial institution.
 
 ## Business Objective
 
@@ -58,6 +58,19 @@ Power BI semantic model
 
 Governance, security and deployment controls will be added through Unity Catalog, Key Vault, Purview, Azure DevOps and infrastructure-as-code patterns.
 
+## Synthetic Enterprise Source Layer
+
+Phase 2 introduces a deterministic Python generator for heterogeneous source-system data covering CRM, reference/master data, commerce, payments, marketing, digital analytics and customer service.
+
+Two scale profiles are supported:
+
+- `sample` — approximately 1.9 million activity/reference rows for rapid local development and testing
+- `portfolio` — approximately 17.8 million activity/reference rows, including 250,000 customers, 2.5 million orders, 7 million order items and 5 million digital sessions
+
+The raw source layer intentionally includes small rates of duplicates, missing fields, orphan keys, malformed values and invalid business measures. These are profiled rather than hidden so later Databricks Silver processing can demonstrate data-quality rules, quarantine handling and observability.
+
+See [`data/README.md`](data/README.md) and [`docs/data_quality_rules.md`](docs/data_quality_rules.md).
+
 ## Planned Analytical Domains
 
 ### Customer 360
@@ -110,8 +123,8 @@ Business marts
 
 ## Project Phases
 
-- **Phase 1 - Business requirements and architecture: in progress**
-- Phase 2 - Synthetic enterprise dataset
+- **Phase 1 - Business requirements and architecture: complete**
+- **Phase 2 - Synthetic enterprise dataset: in progress**
 - Phase 3 - Azure environment and ADLS Gen2
 - Phase 4 - Azure Data Factory ingestion
 - Phase 5 - Databricks Bronze layer
@@ -130,6 +143,7 @@ azure-customer-360-intelligence/
 ├── architecture/
 ├── docs/
 ├── data/
+│   └── generated/
 ├── src/
 ├── adf/
 ├── databricks/
