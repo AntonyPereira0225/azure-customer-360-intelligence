@@ -64,8 +64,8 @@ Phase 2 introduces a deterministic Python generator for heterogeneous source-sys
 
 Two scale profiles are supported:
 
-- `sample` — approximately 1.9 million activity/reference rows for rapid local development and testing
-- `portfolio` — approximately 17.8 million activity/reference rows, including 250,000 customers, 2.5 million orders, 7 million order items and 5 million digital sessions
+- `sample` — approximately 1.9 million generated rows for rapid local development and testing
+- `portfolio` — approximately 19.8 million generated rows, including 250,000 customers, 2.5 million orders, 7 million order items and 5 million digital sessions
 
 The raw source layer intentionally includes small rates of duplicates, missing fields, orphan keys, malformed values and invalid business measures. These are profiled rather than hidden so later Databricks Silver processing can demonstrate data-quality rules, quarantine handling and observability.
 
