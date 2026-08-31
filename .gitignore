@@ -1,0 +1,30 @@
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+.env
+
+# IDE / OS
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+
+# Generated enterprise data
+data/generated/**
+!data/generated/.gitignore
+
+# Local validation and temporary outputs
+*.log
+*.tmp
+
+# Azure / Terraform local state and secrets
+.terraform/
+*.tfstate
+*.tfstate.*
+*.tfvars
+!*.tfvars.example
+
+# Databricks local artefacts
+.databricks/
