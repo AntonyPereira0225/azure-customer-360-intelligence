@@ -11,6 +11,7 @@ import json
 from pathlib import Path
 
 import pandas as pd
+import pyarrow.parquet as pq
 
 from config import (
     COMMERCE_DIR,
@@ -28,7 +29,7 @@ from config import (
 def _count_parquet(directory: Path, prefix: str) -> int:
     total = 0
     for path in sorted(directory.glob(f"{prefix}_part_*.parquet")):
-        total += len(pd.read_parquet(path, columns=None))
+        total += pq.ParquetFile(path).metadata.num_rows
     return total
 
 
@@ -40,7 +41,13 @@ def _count_condition(directory: Path, prefix: str, column: str, predicate) -> in
     return total
 
 
-def _record(checks: list[dict[str, object]], name: str, passed: bool, detail: str, severity: str) -> None:
+def _record(
+    checks: list[dict[str, object]],
+    name: str,
+    passed: bool,
+    detail: str,
+    severity: str,
+) -> None:
     checks.append(
         {
             "check": name,
@@ -75,14 +82,17 @@ def main() -> None:
     products = pd.read_csv(required_files["products"])
     campaigns = pd.read_csv(required_files["campaigns"])
 
-    # Critical structural checks.
     expected_activity = {
         "orders": (COMMERCE_DIR, "orders", COUNTS["orders"]),
         "order_items": (COMMERCE_DIR, "order_items", COUNTS["order_items"]),
         "payments": (COMMERCE_DIR, "payments", COUNTS["payments"]),
         "returns": (COMMERCE_DIR, "returns", COUNTS["returns"]),
         "sessions": (DIGITAL_DIR, "sessions", COUNTS["web_sessions"]),
-        "marketing_interactions": (MARKETING_DIR, "interactions", COUNTS["marketing_interactions"]),
+        "marketing_interactions": (
+            MARKETING_DIR,
+            "interactions",
+            COUNTS["marketing_interactions"],
+        ),
         "support_cases": (SERVICE_DIR, "support_cases", COUNTS["support_cases"]),
     }
     row_counts: dict[str, int] = {}
@@ -124,17 +134,38 @@ def main() -> None:
     quality_profile = {
         "customer_duplicate_rows": int(customers.duplicated("customer_id", keep=False).sum()),
         "customer_missing_country": int(customers["home_country"].isna().sum()),
-        "customer_invalid_email": int(~customers["synthetic_email"].str.contains("@", na=False).sum()) if False else int((~customers["synthetic_email"].str.contains("@", na=False)).sum()),
+        "customer_invalid_email": int(
+            (~customers["synthetic_email"].str.contains("@", na=False)).sum()
+        ),
         "product_missing_category": int(products["category"].isna().sum()),
         "product_negative_price": int((products["unit_price_eur"] < 0).sum()),
-        "order_orphan_customer": _count_condition(COMMERCE_DIR, "orders", "customer_id", lambda s: s.eq("C_ORPHAN")),
-        "order_missing_timestamp": _count_condition(COMMERCE_DIR, "orders", "order_timestamp", lambda s: s.isna()),
-        "order_negative_value": _count_condition(COMMERCE_DIR, "orders", "order_value_eur", lambda s: s < 0),
-        "order_item_orphan_product": _count_condition(COMMERCE_DIR, "order_items", "product_id", lambda s: s.eq("P_ORPHAN")),
-        "payment_missing_method": _count_condition(COMMERCE_DIR, "payments", "payment_method", lambda s: s.isna()),
-        "session_missing_timestamp": _count_condition(DIGITAL_DIR, "sessions", "session_start", lambda s: s.isna()),
-        "marketing_orphan_campaign": _count_condition(MARKETING_DIR, "interactions", "campaign_id", lambda s: s.eq("CMP_ORPHAN")),
-        "support_negative_resolution": _count_condition(SERVICE_DIR, "support_cases", "resolution_minutes", lambda s: s < 0),
+        "order_orphan_customer": _count_condition(
+            COMMERCE_DIR, "orders", "customer_id", lambda s: s.eq("C_ORPHAN")
+        ),
+        "order_missing_timestamp": _count_condition(
+            COMMERCE_DIR, "orders", "order_timestamp", lambda s: s.isna()
+        ),
+        "order_negative_value": _count_condition(
+            COMMERCE_DIR, "orders", "order_value_eur", lambda s: s < 0
+        ),
+        "order_item_orphan_product": _count_condition(
+            COMMERCE_DIR, "order_items", "product_id", lambda s: s.eq("P_ORPHAN")
+        ),
+        "payment_missing_method": _count_condition(
+            COMMERCE_DIR, "payments", "payment_method", lambda s: s.isna()
+        ),
+        "session_missing_timestamp": _count_condition(
+            DIGITAL_DIR, "sessions", "session_start", lambda s: s.isna()
+        ),
+        "marketing_orphan_campaign": _count_condition(
+            MARKETING_DIR,
+            "interactions",
+            "campaign_id",
+            lambda s: s.eq("CMP_ORPHAN"),
+        ),
+        "support_negative_resolution": _count_condition(
+            SERVICE_DIR, "support_cases", "resolution_minutes", lambda s: s < 0
+        ),
     }
 
     for name, count in quality_profile.items():
@@ -146,7 +177,9 @@ def main() -> None:
             "warning",
         )
 
-    critical_failures = [c for c in checks if c["severity"] == "critical" and not c["passed"]]
+    critical_failures = [
+        c for c in checks if c["severity"] == "critical" and not c["passed"]
+    ]
     output = {
         "status": "PASS" if not critical_failures else "FAIL",
         "scale_profile": SCALE_PROFILE,
