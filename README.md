@@ -69,7 +69,9 @@ Two scale profiles are supported:
 
 The raw source layer intentionally includes small rates of duplicates, missing fields, orphan keys, malformed values and invalid business measures. These are profiled rather than hidden so later Databricks Silver processing can demonstrate data-quality rules, quarantine handling and observability.
 
-See [`data/README.md`](data/README.md) and [`docs/data_quality_rules.md`](docs/data_quality_rules.md).
+The first complete `sample` run passed structural validation with the expected row counts: 250,000 orders, 600,000 order items, 250,000 payments, 500,000 digital sessions, 200,000 marketing interactions, 35,000 support cases and 20,000 returns. Deliberate raw-source defects were also detected as expected, confirming that the quality framework distinguishes critical generation failures from issues intended for later Silver-layer cleansing and quarantine.
+
+See [`data/README.md`](data/README.md), [`docs/data_quality_rules.md`](docs/data_quality_rules.md) and [`docs/sample_generation_validation.md`](docs/sample_generation_validation.md).
 
 ## Planned Analytical Domains
 
@@ -124,7 +126,7 @@ Business marts
 ## Project Phases
 
 - **Phase 1 - Business requirements and architecture: complete**
-- **Phase 2 - Synthetic enterprise dataset: in progress**
+- **Phase 2 - Synthetic enterprise dataset: in progress (sample profile validated)**
 - Phase 3 - Azure environment and ADLS Gen2
 - Phase 4 - Azure Data Factory ingestion
 - Phase 5 - Databricks Bronze layer
