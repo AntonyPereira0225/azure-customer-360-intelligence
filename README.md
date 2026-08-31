@@ -60,7 +60,7 @@ Governance, security and deployment controls will be added through Unity Catalog
 
 ## Synthetic Enterprise Source Layer
 
-Phase 2 introduces a deterministic Python generator for heterogeneous source-system data covering CRM, reference/master data, commerce, payments, marketing, digital analytics and customer service.
+Phase 2 implements a deterministic Python generator for heterogeneous source-system data covering CRM, reference/master data, commerce, payments, marketing, digital analytics and customer service.
 
 Two scale profiles are supported:
 
@@ -69,9 +69,9 @@ Two scale profiles are supported:
 
 The raw source layer intentionally includes small rates of duplicates, missing fields, orphan keys, malformed values and invalid business measures. These are profiled rather than hidden so later Databricks Silver processing can demonstrate data-quality rules, quarantine handling and observability.
 
-The first complete `sample` run passed structural validation with the expected row counts: 250,000 orders, 600,000 order items, 250,000 payments, 500,000 digital sessions, 200,000 marketing interactions, 35,000 support cases and 20,000 returns. Deliberate raw-source defects were also detected as expected, confirming that the quality framework distinguishes critical generation failures from issues intended for later Silver-layer cleansing and quarantine.
+Both scale profiles have now passed structural validation. The full portfolio run reconciled 2.5 million orders, 7 million order items, 2.5 million payments, 200,000 returns, 5 million digital sessions, 2 million marketing interactions and 350,000 support cases. The generator was also executed twice at portfolio scale with the same validated row counts and deliberate defect profile.
 
-See [`data/README.md`](data/README.md), [`docs/data_quality_rules.md`](docs/data_quality_rules.md) and [`docs/sample_generation_validation.md`](docs/sample_generation_validation.md).
+See [`data/README.md`](data/README.md), [`docs/data_quality_rules.md`](docs/data_quality_rules.md), [`docs/sample_generation_validation.md`](docs/sample_generation_validation.md) and [`docs/portfolio_generation_validation.md`](docs/portfolio_generation_validation.md).
 
 ## Planned Analytical Domains
 
@@ -126,8 +126,8 @@ Business marts
 ## Project Phases
 
 - **Phase 1 - Business requirements and architecture: complete**
-- **Phase 2 - Synthetic enterprise dataset: in progress (sample profile validated)**
-- Phase 3 - Azure environment and ADLS Gen2
+- **Phase 2 - Synthetic enterprise dataset: complete**
+- **Phase 3 - Azure environment and ADLS Gen2: next**
 - Phase 4 - Azure Data Factory ingestion
 - Phase 5 - Databricks Bronze layer
 - Phase 6 - Silver transformations and data quality
